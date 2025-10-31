@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ahusduasduaak</title>
+</head>
+<body style="margin: 0; padding: 0; min-height: 100vh; background-size: cover; background-position: center; background-repeat: no-repeat; background-image: url(default-image.jpg); display: flex; justify-content: center; align-items: center; font-family: Arial, sans-serif;">
+    
+    <div id="countdown" style="color: white; font-size: 48px; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);"></div>
+
+    <audio id="defaultSong" src="default-song.mp3" loop autoplay></audio>
+    <audio id="celebrationSong" src="song.mp3" preload="auto" loop></audio>
+
+    <script>
+        const targetDate = new Date('2025-11-01T00:00:00');
+        const defaultAudio = document.getElementById('defaultSong');
+        const celebrationAudio = document.getElementById('celebrationSong');
+        const countdownEl = document.getElementById('countdown');
+        const body = document.body;
+        let hasChanged = false;
+
+        // Try to play default song, handle autoplay restrictions
+        defaultAudio.play().catch(err => {
+            console.log('Autoplay prevented. Click to enable audio.');
+            document.body.addEventListener('click', () => {
+                defaultAudio.play();
+            }, { once: true });
+        });
+
+        function checkAndSwitch() {
+            const now = new Date();
+            
+            if (now >= targetDate && !hasChanged) {
+                // Hide countdown
+                countdownEl.style.display = 'none';
+                
+                // Change background image
+                body.style.backgroundImage = 'url(catsanta.jpg)';
+                
+                // Switch songs
+                defaultAudio.pause();
+                celebrationAudio.play().catch(err => {
+                    console.log('Audio switch prevented. Click to continue.');
+                    document.body.addEventListener('click', () => {
+                        celebrationAudio.play();
+                    }, { once: true });
+                });
+                
+                hasChanged = true;
+            } else if (now < targetDate) {
+                // Show countdown
+                const diff = targetDate - now;
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                countdownEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+            }
+        }
+
+        setInterval(checkAndSwitch, 1000);
+        checkAndSwitch();
+    </script>
+</body>
+</html>

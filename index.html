@@ -13,55 +13,48 @@
     <audio id="celebrationSong" src="song.mp3" preload="auto" loop></audio>
 
     <script>
-        const targetDate = new Date('2025-12-25T00:00:00');
-        const defaultAudio = document.getElementById('defaultSong');
-        const celebrationAudio = document.getElementById('celebrationSong');
-        const countdownEl = document.getElementById('countdown');
-        const body = document.body;
-        let hasChanged = false;
+    const targetDate = new Date('2025-12-25T00:00:00');
+    const defaultAudio = document.getElementById('defaultSong');
+    const countdownEl = document.getElementById('countdown');
+    const body = document.body;
 
-        // Try to play default song, handle autoplay restrictions
-        defaultAudio.play().catch(err => {
-            console.log('Autoplay prevented. Click to enable audio.');
-            document.body.addEventListener('click', () => {
-                defaultAudio.play();
-            }, { once: true });
+    let audioStarted = false;
+
+    function startDefaultSong() {
+        if (audioStarted) return;
+        audioStarted = true;
+
+        defaultAudio.play().catch(() => {
+            document.body.addEventListener(
+                'click',
+                () => defaultAudio.play(),
+                { once: true }
+            );
         });
+    }
 
-        function checkAndSwitch() {
-            const now = new Date();
-            
-            if (now >= targetDate && !hasChanged) {
-                // Hide countdown
-                countdownEl.style.display = 'none';
-                
-                // Change background image
-                body.style.backgroundImage = 'url(catsanta.jpg)';
-                
-                // Switch songs
-                defaultAudio.pause();
-                celebrationAudio.play().catch(err => {
-                    console.log('Audio switch prevented. Click to continue.');
-                    document.body.addEventListener('click', () => {
-                        celebrationAudio.play();
-                    }, { once: true });
-                });
-                
-                hasChanged = true;
-            } else if (now < targetDate) {
-                // Show countdown
-                const diff = targetDate - now;
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            }
+    function checkAndSwitch() {
+        const now = new Date();
+
+        // Always ensure default song is playing
+        startDefaultSong();
+
+        if (now >= targetDate) {
+            countdownEl.style.display = 'none';
+            body.style.backgroundImage = 'url(catsanta.jpg)';
+        } else {
+            const diff = targetDate - now;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
+    }
 
-        setInterval(checkAndSwitch, 1000);
-        checkAndSwitch();
+    setInterval(checkAndSwitch, 1000);
+    checkAndSwitch();
     </script>
 </body>
 </html>
